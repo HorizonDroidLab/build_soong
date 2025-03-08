@@ -65,7 +65,26 @@ func RegisterPrebuiltEtcBuildComponents(ctx android.RegistrationContext) {
 	ctx.RegisterModuleType("prebuilt_dsp", PrebuiltDSPFactory)
 	ctx.RegisterModuleType("prebuilt_rfsa", PrebuiltRFSAFactory)
 	ctx.RegisterModuleType("prebuilt_renderscript_bitcode", PrebuiltRenderScriptBitcodeFactory)
-
+	ctx.RegisterModuleType("prebuilt_media", PrebuiltMediaFactory)
+	ctx.RegisterModuleType("prebuilt_voicepack", PrebuiltVoicepackFactory)
+	ctx.RegisterModuleType("prebuilt_bin", PrebuiltBinaryFactory)
+	ctx.RegisterModuleType("prebuilt_wallpaper", PrebuiltWallpaperFactory)
+	ctx.RegisterModuleType("prebuilt_priv_app", PrebuiltPrivAppFactory)
+	ctx.RegisterModuleType("prebuilt_radio", PrebuiltRadioFactory)
+	ctx.RegisterModuleType("prebuilt_rfs", PrebuiltRfsFactory)
+	ctx.RegisterModuleType("prebuilt_framework", PrebuiltFrameworkFactory)
+	ctx.RegisterModuleType("prebuilt_res", PrebuiltResFactory)
+	ctx.RegisterModuleType("prebuilt_wlc_upt", PrebuiltWlcUptFactory)
+	ctx.RegisterModuleType("prebuilt_odm", PrebuiltOdmFactory)
+	ctx.RegisterModuleType("prebuilt_vendor_dlkm", PrebuiltVendorDlkmFactory)
+	ctx.RegisterModuleType("prebuilt_bt_firmware", PrebuiltBtFirmwareFactory)
+	ctx.RegisterModuleType("prebuilt_tvservice", PrebuiltTvServiceFactory)
+	ctx.RegisterModuleType("prebuilt_optee", PrebuiltOpteeFactory)
+	ctx.RegisterModuleType("prebuilt_tvconfig", PrebuiltTvConfigFactory)
+	ctx.RegisterModuleType("prebuilt_vendor", PrebuiltVendorFactory)
+	ctx.RegisterModuleType("prebuilt_sbin", PrebuiltSbinFactory)
+	ctx.RegisterModuleType("prebuilt_system", PrebuiltSystemFactory)
+	ctx.RegisterModuleType("prebuilt_first_stage_ramdisk", PrebuiltFirstStageRamdiskFactory)
 	ctx.RegisterModuleType("prebuilt_defaults", defaultsFactory)
 
 }
@@ -753,3 +772,204 @@ func PrebuiltRFSAFactory() android.Module {
 	android.InitDefaultableModule(module)
 	return module
 }
+
+// prebuilt_media installs media files in <partition>/media directory.
+func PrebuiltMediaFactory() android.Module {
+	module := &PrebuiltEtc{}
+	InitPrebuiltEtcModule(module, "media")
+	// This module is device-only
+	android.InitAndroidArchModule(module, android.DeviceSupported, android.MultilibCommon)
+	android.InitDefaultableModule(module)
+	return module
+}
+
+// prebuilt_voicepack installs voice pack files in <partition>/tts directory.
+func PrebuiltVoicepackFactory() android.Module {
+	module := &PrebuiltEtc{}
+	InitPrebuiltEtcModule(module, "tts")
+	// This module is device-only
+	android.InitAndroidArchModule(module, android.DeviceSupported, android.MultilibCommon)
+	android.InitDefaultableModule(module)
+	return module
+}
+
+// prebuilt_bin installs files in <partition>/bin directory.
+func PrebuiltBinaryFactory() android.Module {
+	module := &PrebuiltEtc{}
+	InitPrebuiltEtcModule(module, "bin")
+	// This module is device-only
+	android.InitAndroidArchModule(module, android.DeviceSupported, android.MultilibFirst)
+	android.InitDefaultableModule(module)
+	return module
+}
+
+// prebuilt_wallpaper installs image files in <partition>/wallpaper directory.
+func PrebuiltWallpaperFactory() android.Module {
+	module := &PrebuiltEtc{}
+	InitPrebuiltEtcModule(module, "wallpaper")
+	// This module is device-only
+	android.InitAndroidArchModule(module, android.DeviceSupported, android.MultilibCommon)
+	android.InitDefaultableModule(module)
+	return module
+}
+
+// prebuilt_priv_app installs files in <partition>/priv-app directory.
+func PrebuiltPrivAppFactory() android.Module {
+	module := &PrebuiltEtc{}
+	InitPrebuiltEtcModule(module, "priv-app")
+	// This module is device-only
+	android.InitAndroidArchModule(module, android.DeviceSupported, android.MultilibCommon)
+	android.InitDefaultableModule(module)
+	return module
+}
+
+// prebuilt_radio installs files in <partition>/radio directory.
+func PrebuiltRadioFactory() android.Module {
+	module := &PrebuiltEtc{}
+	InitPrebuiltEtcModule(module, "radio")
+	// This module is device-only
+	android.InitAndroidArchModule(module, android.DeviceSupported, android.MultilibCommon)
+	android.InitDefaultableModule(module)
+	return module
+}
+
+// prebuilt_rfs installs files in <partition>/rfs directory.
+func PrebuiltRfsFactory() android.Module {
+	module := &PrebuiltEtc{}
+	InitPrebuiltEtcModule(module, "rfs")
+	// This module is device-only
+	android.InitAndroidArchModule(module, android.DeviceSupported, android.MultilibCommon)
+	android.InitDefaultableModule(module)
+	return module
+}
+
+// prebuilt_framework installs files in <partition>/framework directory.
+func PrebuiltFrameworkFactory() android.Module {
+	module := &PrebuiltEtc{}
+	InitPrebuiltEtcModule(module, "framework")
+	// This module is device-only
+	android.InitAndroidArchModule(module, android.DeviceSupported, android.MultilibCommon)
+	android.InitDefaultableModule(module)
+	return module
+}
+
+// prebuilt_res installs files in <partition>/res directory.
+func PrebuiltResFactory() android.Module {
+	module := &PrebuiltEtc{}
+	InitPrebuiltEtcModule(module, "res")
+	// This module is device-only
+	android.InitAndroidArchModule(module, android.DeviceSupported, android.MultilibCommon)
+	android.InitDefaultableModule(module)
+	return module
+}
+
+// prebuilt_wlc_upt installs files in <partition>/wlc_upt directory.
+func PrebuiltWlcUptFactory() android.Module {
+	module := &PrebuiltEtc{}
+	InitPrebuiltEtcModule(module, "wlc_upt")
+	// This module is device-only
+	android.InitAndroidArchModule(module, android.DeviceSupported, android.MultilibCommon)
+	android.InitDefaultableModule(module)
+	return module
+}
+
+// prebuilt_odm installs files in <partition>/odm directory.
+func PrebuiltOdmFactory() android.Module {
+	module := &PrebuiltEtc{}
+	InitPrebuiltEtcModule(module, "odm")
+	// This module is device-only
+	android.InitAndroidArchModule(module, android.DeviceSupported, android.MultilibCommon)
+	android.InitDefaultableModule(module)
+	return module
+}
+
+// prebuilt_vendor_dlkm installs files in <partition>/vendor_dlkm directory.
+func PrebuiltVendorDlkmFactory() android.Module {
+	module := &PrebuiltEtc{}
+	InitPrebuiltEtcModule(module, "vendor_dlkm")
+	// This module is device-only
+	android.InitAndroidArchModule(module, android.DeviceSupported, android.MultilibCommon)
+	android.InitDefaultableModule(module)
+	return module
+}
+
+// prebuilt_bt_firmware installs files in <partition>/bt_firmware directory.
+func PrebuiltBtFirmwareFactory() android.Module {
+	module := &PrebuiltEtc{}
+	InitPrebuiltEtcModule(module, "bt_firmware")
+	// This module is device-only
+	android.InitAndroidArchModule(module, android.DeviceSupported, android.MultilibCommon)
+	android.InitDefaultableModule(module)
+	return module
+}
+
+// prebuilt_tvservice installs files in <partition>/tvservice directory.
+func PrebuiltTvServiceFactory() android.Module {
+	module := &PrebuiltEtc{}
+	InitPrebuiltEtcModule(module, "tvservice")
+	// This module is device-only
+	android.InitAndroidArchModule(module, android.DeviceSupported, android.MultilibCommon)
+	android.InitDefaultableModule(module)
+	return module
+}
+
+// prebuilt_optee installs files in <partition>/optee directory.
+func PrebuiltOpteeFactory() android.Module {
+	module := &PrebuiltEtc{}
+	InitPrebuiltEtcModule(module, "optee")
+	// This module is device-only
+	android.InitAndroidArchModule(module, android.DeviceSupported, android.MultilibCommon)
+	android.InitDefaultableModule(module)
+	return module
+}
+
+// prebuilt_tvconfig installs files in <partition>/tvconfig directory.
+func PrebuiltTvConfigFactory() android.Module {
+	module := &PrebuiltEtc{}
+	InitPrebuiltEtcModule(module, "tvconfig")
+	// This module is device-only
+	android.InitAndroidArchModule(module, android.DeviceSupported, android.MultilibCommon)
+	android.InitDefaultableModule(module)
+	return module
+}
+
+// prebuilt_vendor installs files in <partition>/vendor directory.
+func PrebuiltVendorFactory() android.Module {
+	module := &PrebuiltEtc{}
+	InitPrebuiltEtcModule(module, "vendor")
+	// This module is device-only
+	android.InitAndroidArchModule(module, android.DeviceSupported, android.MultilibCommon)
+	android.InitDefaultableModule(module)
+	return module
+}
+
+// prebuilt_sbin installs files in <partition>/sbin directory.
+func PrebuiltSbinFactory() android.Module {
+	module := &PrebuiltEtc{}
+	InitPrebuiltEtcModule(module, "sbin")
+	// This module is device-only
+	android.InitAndroidArchModule(module, android.DeviceSupported, android.MultilibCommon)
+	android.InitDefaultableModule(module)
+	return module
+}
+
+// prebuilt_system installs files in <partition>/system directory.
+func PrebuiltSystemFactory() android.Module {
+	module := &PrebuiltEtc{}
+	InitPrebuiltEtcModule(module, "system")
+	// This module is device-only
+	android.InitAndroidArchModule(module, android.DeviceSupported, android.MultilibCommon)
+	android.InitDefaultableModule(module)
+	return module
+}
+
+// prebuilt_first_stage_ramdisk installs files in <partition>/first_stage_ramdisk directory.
+func PrebuiltFirstStageRamdiskFactory() android.Module {
+	module := &PrebuiltEtc{}
+	InitPrebuiltEtcModule(module, "first_stage_ramdisk")
+	// This module is device-only
+	android.InitAndroidArchModule(module, android.DeviceSupported, android.MultilibCommon)
+	android.InitDefaultableModule(module)
+	return module
+}
+

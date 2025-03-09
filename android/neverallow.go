@@ -327,11 +327,7 @@ func createKotlinPluginRule() []Rule {
 		// Actual path prebuilts/sdk/current/androidx/m2repository/androidx/compose/compiler/compiler-hosted
 		"prebuilts/sdk/current/androidx",
 		"external/kotlinc",
-<<<<<<< HEAD
-		"vendor/horizon/kotlin",
-=======
-                "vendor/aosp/kotlin",
->>>>>>> 0f12f6189 (Merge tag 'android-15.0.0_r20' into fifteen)
+
 	}
 
 	return []Rule{

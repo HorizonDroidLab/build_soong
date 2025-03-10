@@ -133,7 +133,7 @@ var d8, d8RE = pctx.MultiCommandRemoteStaticRules("d8",
 			`$d8Template${config.D8Cmd} ${config.D8Flags} $d8Flags --output $outDir --no-dex-input-jar $in && ` +
 			`$zipTemplate${config.SoongZipCmd} $zipFlags -o $outDir/classes.dex.jar -C $outDir -f "$outDir/classes*.dex" && ` +
 			`${config.MergeZipsCmd} -D -stripFile "**/*.class" $mergeZipsFlags $out $outDir/classes.dex.jar $in && ` +
-			`rm -f "$outDir/classes*.dex" "$outDir/classes.dex.jar"`,
+			`rm -f "$outDir"/classes*.dex "$outDir/classes.dex.jar"`,
 		CommandDeps: []string{
 			"${config.D8Cmd}",
 			"${config.SoongZipCmd}",
@@ -172,7 +172,7 @@ var r8, r8RE = pctx.MultiCommandRemoteStaticRules("r8",
 			`rm -rf ${outUsageDir} && ` +
 			`$zipTemplate${config.SoongZipCmd} $zipFlags -o $outDir/classes.dex.jar -C $outDir -f "$outDir/classes*.dex" && ` +
 			`${config.MergeZipsCmd} -D -stripFile "**/*.class" $mergeZipsFlags $out $outDir/classes.dex.jar $in && ` +
-			`rm -f "$outDir/classes*.dex" "$outDir/classes.dex.jar"`,
+			`rm -f "$outDir"/classes*.dex "$outDir/classes.dex.jar"`,
 		Depfile: "${out}.d",
 		Deps:    blueprint.DepsGCC,
 		CommandDeps: []string{
@@ -223,15 +223,8 @@ func (d *dexer) dexCommonFlags(ctx android.ModuleContext,
 	var requestReleaseMode bool
 	requestReleaseMode, flags = android.RemoveFromList("--release", flags)
 
-	if ctx.Config().Getenv("NO_OPTIMIZE_DX") != "" {
+	if ctx.Config().Getenv("NO_OPTIMIZE_DX") != "" || ctx.Config().Getenv("GENERATE_DEX_DEBUG") != "" {
 		flags = append(flags, "--debug")
-		requestReleaseMode = false
-	}
-
-	if ctx.Config().Getenv("GENERATE_DEX_DEBUG") != "" {
-		flags = append(flags,
-			"--debug",
-			"--verbose")
 		requestReleaseMode = false
 	}
 
@@ -259,14 +252,11 @@ func (d *dexer) dexCommonFlags(ctx android.ModuleContext,
 	if err != nil {
 		ctx.PropertyErrorf("min_sdk_version", "%s", err)
 	}
-	if !Bool(d.dexProperties.No_dex_container) && effectiveVersion.FinalOrFutureInt() >= 36 {
+	if !Bool(d.dexProperties.No_dex_container) && effectiveVersion.FinalOrFutureInt() >= 36 && ctx.Config().UseDexV41() {
 		// W is 36, but we have not bumped the SDK version yet, so check for both.
 		if ctx.Config().PlatformSdkVersion().FinalInt() >= 36 ||
-			ctx.Config().PlatformSdkCodename() == "Wear" {
-			// TODO(b/329465418): Skip this module since it causes issue with app DRM
-			if ctx.ModuleName() != "framework-minus-apex" {
-				flags = append([]string{"-JDcom.android.tools.r8.dexContainerExperiment"}, flags...)
-			}
+			ctx.Config().PlatformSdkCodename() == "Baklava" {
+			flags = append([]string{"-JDcom.android.tools.r8.dexContainerExperiment"}, flags...)
 		}
 	}
 
@@ -331,20 +321,16 @@ func (d *dexer) r8Flags(ctx android.ModuleContext, dexParams *compileDexParams, 
 	r8Deps = append(r8Deps, flags.dexClasspath...)
 
 	transitiveStaticLibsLookupMap := map[android.Path]bool{}
-	if d.transitiveStaticLibsHeaderJarsForR8 != nil {
-		for _, jar := range d.transitiveStaticLibsHeaderJarsForR8.ToList() {
-			transitiveStaticLibsLookupMap[jar] = true
-		}
+	for _, jar := range d.transitiveStaticLibsHeaderJarsForR8.ToList() {
+		transitiveStaticLibsLookupMap[jar] = true
 	}
 	transitiveHeaderJars := android.Paths{}
-	if d.transitiveLibsHeaderJarsForR8 != nil {
-		for _, jar := range d.transitiveLibsHeaderJarsForR8.ToList() {
-			if _, ok := transitiveStaticLibsLookupMap[jar]; ok {
-				// don't include a lib if it is already packaged in the current JAR as a static lib
-				continue
-			}
-			transitiveHeaderJars = append(transitiveHeaderJars, jar)
+	for _, jar := range d.transitiveLibsHeaderJarsForR8.ToList() {
+		if _, ok := transitiveStaticLibsLookupMap[jar]; ok {
+			// don't include a lib if it is already packaged in the current JAR as a static lib
+			continue
 		}
+		transitiveHeaderJars = append(transitiveHeaderJars, jar)
 	}
 	transitiveClasspath := classpath(transitiveHeaderJars)
 	r8Flags = append(r8Flags, transitiveClasspath.FormJavaClassPath("-libraryjars"))
@@ -413,6 +399,10 @@ func (d *dexer) r8Flags(ctx android.ModuleContext, dexParams *compileDexParams, 
 		r8Flags = append(r8Flags, "--resource-output", d.resourcesOutput.Path().String())
 		if d.dexProperties.optimizedResourceShrinkingEnabled(ctx) {
 			r8Flags = append(r8Flags, "--optimized-resource-shrinking")
+			if Bool(d.dexProperties.Optimize.Optimized_shrink_resources) {
+				// Explicitly opted into optimized shrinking, no need for keeping R$id entries
+				r8Flags = append(r8Flags, "--force-optimized-resource-shrinking")
+			}
 		}
 	}
 
@@ -437,17 +427,18 @@ type compileDexParams struct {
 // Adds --art-profile to r8/d8 command.
 // r8/d8 will output a generated profile file to match the optimized dex code.
 func (d *dexer) addArtProfile(ctx android.ModuleContext, dexParams *compileDexParams) (flags []string, deps android.Paths, artProfileOutputPath *android.OutputPath) {
-	if dexParams.artProfileInput != nil {
-		artProfileInputPath := android.PathForModuleSrc(ctx, *dexParams.artProfileInput)
-		artProfileOutputPathValue := android.PathForModuleOut(ctx, "profile.prof.txt").OutputPath
-		artProfileOutputPath = &artProfileOutputPathValue
-		flags = []string{
-			"--art-profile",
-			artProfileInputPath.String(),
-			artProfileOutputPath.String(),
-		}
-		deps = append(deps, artProfileInputPath)
+	if dexParams.artProfileInput == nil {
+		return nil, nil, nil
 	}
+	artProfileInputPath := android.PathForModuleSrc(ctx, *dexParams.artProfileInput)
+	artProfileOutputPathValue := android.PathForModuleOut(ctx, "profile.prof.txt").OutputPath
+	artProfileOutputPath = &artProfileOutputPathValue
+	flags = []string{
+		"--art-profile",
+		artProfileInputPath.String(),
+		artProfileOutputPath.String(),
+	}
+	deps = append(deps, artProfileInputPath)
 	return flags, deps, artProfileOutputPath
 
 }

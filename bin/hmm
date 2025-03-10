@@ -81,7 +81,11 @@ Look at the source to view more functions. The complete list is:
 EOF
     T=$(gettop)
     A=""
+<<<<<<< HEAD
     for i in `cat $T/build/envsetup.sh $T/vendor/horizon/build/envsetup.sh | sed -n "/^[[:blank:]]*function /s/function \([a-z_]*\).*/\1/p" | sort | uniq`; do
+=======
+    for i in `cat $T/build/envsetup.sh $T/vendor/aosp/build/envsetup.sh | sed -n "/^[[:blank:]]*function /s/function \([a-z_]*\).*/\1/p" | sort | uniq`; do
+>>>>>>> 0f12f6189 (Merge tag 'android-15.0.0_r20' into fifteen)
       A="$A $i"
     done
     echo $A

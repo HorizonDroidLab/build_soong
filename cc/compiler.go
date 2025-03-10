@@ -373,6 +373,12 @@ func (compiler *baseCompiler) compilerFlags(ctx ModuleContext, flags Flags, deps
 		flags.Local.CommonFlags = append(flags.Local.CommonFlags, "-I" + additionalIncludeDirs)
 	}
 
+	reuseObjs := false
+	if len(ctx.GetDirectDepsWithTag(reuseObjTag)) > 0 {
+		reuseObjs = true
+		
+	}
+
 	srcs := compiler.Properties.Srcs.GetOrDefault(ctx, nil)
 	exclude_srcs := compiler.Properties.Exclude_srcs.GetOrDefault(ctx, nil)
 	compiler.srcsBeforeGen = android.PathsForModuleSrcExcludes(ctx, srcs, exclude_srcs)

@@ -828,10 +828,7 @@ func PrebuiltGPUFactory() android.Module {
 	return module
 }
 
-<<<<<<< HEAD
-=======
 // prebuilt_install is for a prebuilt artifact in <partition>/install directory.
->>>>>>> ffbf6d830 (Add <partition>/install support to fsgen)
 func PrebuiltInstallFactory() android.Module {
 	module := &PrebuiltEtc{}
 	InitPrebuiltEtcModule(module, "install")
@@ -841,7 +838,7 @@ func PrebuiltInstallFactory() android.Module {
 	return module
 }
 
-<<<<<<< HEAD
+// prebuilt_install is for a prebuilt artifact in <partition>/addon.d directory.
 func PrebuiltAddonDFactory() android.Module {
 	module := &PrebuiltEtc{}
 	InitPrebuiltEtcModule(module, "addon.d")
@@ -851,8 +848,6 @@ func PrebuiltAddonDFactory() android.Module {
 	return module
 }
 
-=======
->>>>>>> ffbf6d830 (Add <partition>/install support to fsgen)
 // prebuilt_dsp installs a DSP related file to <partition>/etc/dsp directory for system image.
 // If soc_specific property is set to true, the DSP related file is installed to the
 // vendor <partition>/dsp directory for vendor image.
